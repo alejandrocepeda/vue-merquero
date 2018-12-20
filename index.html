@@ -39,9 +39,9 @@
          	<p class="lead text-muted">Upload CSV file for execute commands.</p>
 
          	
-			<input accept="*.csv" type="file" class="btn btn-primary my-2 form-control-file" id="exampleFormControlFile1">
+			<input @change="fileUpload()" type="file" id="file" name="file" ref="file" class="btn btn-primary my-2 form-control-file">
 		
-            <a href="#" class="btn btn-secondary my-2">Execute</a>
+            <button v-on:click="submitFile()" class="btn btn-secondary my-2">Submit and Execute</button>
           </p>
         </div>
     </section>
@@ -94,11 +94,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.17/vue.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@7.29.1/dist/sweetalert2.all.min.js"></script>
+<script src="https://unpkg.com/vue-upload-component"></script>
 
 <script type="text/javascript">
 	
+	Vue.component('file-upload', VueUploadComponent)
+	
 	const app = new Vue({
-		el:'#app',
+		el :'#app',
+		file : '',
 		data : {
 			products : [],
 		},
@@ -106,6 +110,33 @@
 			this.getProducts()
 		},
 		methods:{
+			fileUpload(){
+				
+				this.file = this.$refs.file.files[0]
+			},
+			submitFile(){
+				let formData = new FormData()
+				formData.append('file', this.file)
+
+				let url = 'http://127.0.0.1:8000/api/csv/'
+				
+				axios
+				.post(url,
+				  formData,
+				  {
+				    headers: {
+				        'Content-Type': 'application/json'
+				    }
+				  }
+				)
+				.then(function(response){
+				  console.log(response.request + ' SUCCESS!!');
+				})
+				.catch(function(){
+				  console.log('FAILURE!!');
+				})
+
+			},
 			getProducts(){
 				let url = 'http://127.0.0.1:8000/api/products/'
 
